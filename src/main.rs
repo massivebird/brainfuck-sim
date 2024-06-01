@@ -1,3 +1,5 @@
+use InstructionKind::*;
+
 // https://github.com/pretzelhammer/rust-blog/blob/master/posts/too-many-brainfuck-compilers.md#what-is-brainfuck
 
 #[derive(Default)]
@@ -7,15 +9,40 @@ struct Computer {
 }
 
 impl Computer {
-    fn execute(&mut self, instructions: &[Instruction]) {
+    fn get_ptr_data(&self) -> i32 {
+        unsafe { *self.memory.get_unchecked(self.ptr) }
+    }
 
+    fn execute(&mut self, instructions: &[Inst]) {
+        for inst in instructions {
+            match inst.kind {
+                IncPtr => self.ptr += 1,
+                DecPtr => self.ptr -= 1,
+                IncByte => *self.memory.get_mut(self.ptr).unwrap() += 1,
+                DecByte => *self.memory.get_mut(self.ptr).unwrap() -= 1,
+                WriteByte => todo!(),
+                ReadByte => todo!(),
+                LoopStart { end_idx } => {
+                    if self.get_ptr_data() == 0 {
+                        self.ptr = end_idx;
+                    }
+                }
+                LoopEnd { start_idx } => {
+                    if self.get_ptr_data() != 0 {
+                        self.ptr = start_idx;
+                    }
+                }
+            }
+        }
     }
 }
 
-struct Instruction {
+#[derive(Debug)]
+struct Inst {
     kind: InstructionKind,
 }
 
+#[derive(Debug)]
 enum InstructionKind {
     IncPtr,
     DecPtr,
@@ -33,4 +60,19 @@ fn main() {
     let computer = Computer::default();
 
     let bf = "++";
+
+    let mut instructions: Vec<Inst> = Vec::new();
+    for symbol in bf.chars() {
+        let kind = match symbol {
+            '>' => IncPtr,
+            '<' => DecPtr,
+            '+' => IncByte,
+            '-' => DecByte,
+            '[' => unimplemented!(),
+            ']' => unimplemented!(),
+            _ => unimplemented!(),
+        };
+        instructions.push(Inst { kind });
+    }
+
 }
