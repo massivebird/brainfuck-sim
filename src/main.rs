@@ -51,6 +51,45 @@ struct Inst {
     kind: InstructionKind,
 }
 
+impl Inst {
+    fn from_str(str: &str) -> Vec<Self> {
+        // static analysis (?)
+        // checks if all square brackets are properly closed
+        let mut stack: Vec<InstructionKind> = Vec::new();
+        for char in str.chars() {
+            match char {
+                '[' => stack.push(InstructionKind::LoopStart { end_idx: 0 }),
+                ']' => {
+                    assert!(
+                        stack.pop().is_some(),
+                        "ERROR: loop delimiter: unmatched ']'"
+                    );
+                }
+                _ => continue,
+            }
+        }
+        assert!(
+            stack.is_empty(),
+            "ERROR: loop delimiter: one or more unclosed '['"
+        );
+
+        let mut instructions: Vec<Self> = Vec::new();
+        for symbol in str.chars() {
+            let kind = match symbol {
+                '>' => IncPtr,
+                '<' => DecPtr,
+                '+' => IncByte,
+                '-' => DecByte,
+                '[' => unimplemented!(),
+                ']' => unimplemented!(),
+                unknown => panic!("ERROR: interpreting Brainfuck: unknown character '{unknown}'"),
+            };
+            instructions.push(Self { kind });
+        }
+        instructions
+    }
+}
+
 #[derive(Debug)]
 enum InstructionKind {
     IncPtr,
@@ -70,20 +109,9 @@ fn main() {
 
     let bf = "++";
 
-    let mut instructions: Vec<Inst> = Vec::new();
-    for symbol in bf.chars() {
-        let kind = match symbol {
-            '>' => IncPtr,
-            '<' => DecPtr,
-            '+' => IncByte,
-            '-' => DecByte,
-            '[' => unimplemented!(),
-            ']' => unimplemented!(),
-            _ => unimplemented!(),
-        };
-        instructions.push(Inst { kind });
-    }
+    let instructions = Inst::from_str(bf);
 
     computer.execute(&instructions);
+
     dbg!(&computer);
 }
