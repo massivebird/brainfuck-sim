@@ -2,10 +2,19 @@ use InstructionKind::*;
 
 // https://github.com/pretzelhammer/rust-blog/blob/master/posts/too-many-brainfuck-compilers.md#what-is-brainfuck
 
-#[derive(Default)]
+#[derive(Debug)]
 struct Computer {
     ptr: usize,
     memory: Vec<i32>,
+}
+
+impl Computer {
+    fn new(num_bytes: usize) -> Self {
+        Self {
+            ptr: 0,
+            memory: vec![0; num_bytes],
+        }
+    }
 }
 
 impl Computer {
@@ -57,7 +66,7 @@ enum InstructionKind {
 }
 
 fn main() {
-    let computer = Computer::default();
+    let mut computer = Computer::new(5);
 
     let bf = "++";
 
@@ -75,4 +84,6 @@ fn main() {
         instructions.push(Inst { kind });
     }
 
+    computer.execute(&instructions);
+    dbg!(&computer);
 }
