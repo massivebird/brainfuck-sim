@@ -82,7 +82,7 @@ impl Inst {
                 '-' => DecByte,
                 '[' => unimplemented!(),
                 ']' => unimplemented!(),
-                unknown => panic!("ERROR: interpreting Brainfuck: unknown character '{unknown}'"),
+                _ => continue, // all other characters are interpreted as comments
             };
             instructions.push(Self { kind });
         }
