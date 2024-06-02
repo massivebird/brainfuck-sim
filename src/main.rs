@@ -29,8 +29,14 @@ impl Computer {
             match inst.kind {
                 IncPtr => self.data_ptr += 1,
                 DecPtr => self.data_ptr -= 1,
-                IncByte => *self.memory.get_mut(self.data_ptr).unwrap() += 1,
-                DecByte => *self.memory.get_mut(self.data_ptr).unwrap() -= 1,
+                IncByte => {
+                    *self.memory.get_mut(self.data_ptr).unwrap() =
+                        self.read_memory().wrapping_add(1);
+                }
+                DecByte => {
+                    *self.memory.get_mut(self.data_ptr).unwrap() =
+                        self.read_memory().wrapping_sub(1);
+                }
                 WriteByte => todo!(),
                 PrintByte => {
                     println!("{}", char::from_u32(u32::from(self.read_memory())).unwrap());
