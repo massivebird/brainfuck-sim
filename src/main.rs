@@ -35,12 +35,12 @@ impl Computer {
                 ReadByte => todo!(),
                 LoopStart { end_idx } => {
                     if self.get_ptr_data() == 0 {
-                        self.data_ptr = end_idx;
+                        self.inst_ptr = end_idx;
                     }
                 }
                 LoopEnd { start_idx } => {
                     if self.get_ptr_data() != 0 {
-                        self.data_ptr = start_idx;
+                        self.inst_ptr = start_idx;
                     }
                 }
             }
@@ -75,7 +75,7 @@ impl Inst {
 
                     instructions.push(Self {
                         idx: start_idx,
-                        kind: InstructionKind::LoopStart { end_idx: idx },
+                        kind: InstructionKind::LoopStart { end_idx: idx + 1 },
                     });
 
                     instructions.push(Self {
@@ -104,6 +104,8 @@ impl Inst {
             instructions.push(Self { idx, kind });
         }
 
+        instructions.sort_by(|a, b| a.idx.cmp(&b.idx));
+        dbg!(&instructions);
         instructions
     }
 }
@@ -125,7 +127,7 @@ enum InstructionKind {
 fn main() {
     let mut computer = Computer::new(5);
 
-    let bf = "++";
+    let bf = "+++++[>+<-]";
 
     let instructions = Inst::from_str(bf);
 
