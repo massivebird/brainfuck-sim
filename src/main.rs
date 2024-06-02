@@ -21,7 +21,7 @@ impl Computer {
 
 impl Computer {
     fn read_memory(&self) -> u8 {
-        unsafe { *self.memory.get_unchecked(self.data_ptr) }
+        *self.memory.get(self.data_ptr).unwrap()
     }
 
     fn execute(&mut self, instructions: &[Inst]) {
