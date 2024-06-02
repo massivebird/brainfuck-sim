@@ -4,14 +4,16 @@ use InstructionKind::*;
 
 #[derive(Debug)]
 struct Computer {
-    ptr: usize,
+    data_ptr: usize,
+    inst_ptr: usize,
     memory: Vec<i32>,
 }
 
 impl Computer {
     fn new(num_bytes: usize) -> Self {
         Self {
-            ptr: 0,
+            data_ptr: 0,
+            inst_ptr: 0,
             memory: vec![0; num_bytes],
         }
     }
@@ -19,29 +21,32 @@ impl Computer {
 
 impl Computer {
     fn get_ptr_data(&self) -> i32 {
-        unsafe { *self.memory.get_unchecked(self.ptr) }
+        unsafe { *self.memory.get_unchecked(self.data_ptr) }
     }
 
     fn execute(&mut self, instructions: &[Inst]) {
-        for inst in instructions {
+        while let Some(inst) = instructions.get(self.inst_ptr) {
             match inst.kind {
-                IncPtr => self.ptr += 1,
-                DecPtr => self.ptr -= 1,
-                IncByte => *self.memory.get_mut(self.ptr).unwrap() += 1,
-                DecByte => *self.memory.get_mut(self.ptr).unwrap() -= 1,
+                IncPtr => self.data_ptr += 1,
+                DecPtr => self.data_ptr -= 1,
+                IncByte => *self.memory.get_mut(self.data_ptr).unwrap() += 1,
+                DecByte => *self.memory.get_mut(self.data_ptr).unwrap() -= 1,
                 WriteByte => todo!(),
                 ReadByte => todo!(),
                 LoopStart { end_idx } => {
                     if self.get_ptr_data() == 0 {
-                        self.ptr = end_idx;
+                        self.data_ptr = end_idx;
                     }
                 }
                 LoopEnd { start_idx } => {
                     if self.get_ptr_data() != 0 {
-                        self.ptr = start_idx;
+                        self.data_ptr = start_idx;
                     }
                 }
             }
+
+            // prime next instruction
+            self.inst_ptr += 1;
         }
     }
 }
