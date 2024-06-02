@@ -38,7 +38,7 @@ impl Computer {
                 }
                 WriteByte => todo!(),
                 PrintByte => {
-                    println!("{}", char::from_u32(u32::from(self.read_memory())).unwrap());
+                    print!("{}", char::from_u32(u32::from(self.read_memory())).unwrap());
                 }
                 LoopStart { end_idx } => {
                     if self.read_memory() == 0 {
