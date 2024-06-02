@@ -6,7 +6,7 @@ use InstructionKind::*;
 struct Computer {
     data_ptr: usize,
     inst_ptr: usize,
-    memory: Vec<i32>,
+    memory: Vec<u8>,
 }
 
 impl Computer {
@@ -20,7 +20,7 @@ impl Computer {
 }
 
 impl Computer {
-    fn get_ptr_data(&self) -> i32 {
+    fn read_memory(&self) -> u8 {
         unsafe { *self.memory.get_unchecked(self.data_ptr) }
     }
 
@@ -32,15 +32,19 @@ impl Computer {
                 IncByte => *self.memory.get_mut(self.data_ptr).unwrap() += 1,
                 DecByte => *self.memory.get_mut(self.data_ptr).unwrap() -= 1,
                 WriteByte => todo!(),
-                ReadByte => todo!(),
+                PrintByte => {
+                    println!("{}", char::from_u32(u32::from(self.read_memory())).unwrap());
+                }
                 LoopStart { end_idx } => {
-                    if self.get_ptr_data() == 0 {
+                    if self.read_memory() == 0 {
                         self.inst_ptr = end_idx;
+                        continue;
                     }
                 }
                 LoopEnd { start_idx } => {
-                    if self.get_ptr_data() != 0 {
+                    if self.read_memory() != 0 {
                         self.inst_ptr = start_idx;
+                        continue;
                     }
                 }
             }
@@ -61,6 +65,12 @@ impl Inst {
     fn from_str(str: &str) -> Vec<Self> {
         let mut instructions: Vec<Self> = Vec::new();
 
+        // we only care about the brainfuck
+        let str = str
+            .chars()
+            .filter(|&c| "<>+-.,[]".contains(c))
+            .collect::<String>();
+
         // static analysis (?)
         // checks if all square brackets are properly closed
         let mut stack: Vec<usize> = Vec::new();
@@ -80,8 +90,10 @@ impl Inst {
 
                     instructions.push(Self {
                         idx,
-                        kind: InstructionKind::LoopEnd { start_idx },
-                    })
+                        kind: InstructionKind::LoopEnd {
+                            start_idx: start_idx + 1,
+                        },
+                    });
                 }
                 _ => continue,
             }
@@ -98,14 +110,13 @@ impl Inst {
                 '<' => DecPtr,
                 '+' => IncByte,
                 '-' => DecByte,
-                '[' | ']' => continue, // handled above
-                _ => continue,         // all other characters are interpreted as comments
+                '.' => PrintByte,
+                _ => continue, // brackets already handled
             };
             instructions.push(Self { idx, kind });
         }
 
         instructions.sort_by(|a, b| a.idx.cmp(&b.idx));
-        dbg!(&instructions);
         instructions
     }
 }
@@ -117,7 +128,7 @@ enum InstructionKind {
     IncByte,
     DecByte,
     WriteByte,
-    ReadByte,
+    PrintByte,
     // end_idx = index of instruction after matching LoopEnd
     LoopStart { end_idx: usize },
     // start_idx = index of instruction after matching LoopStart
@@ -127,7 +138,19 @@ enum InstructionKind {
 fn main() {
     let mut computer = Computer::new(5);
 
-    let bf = "+++++[>+<-]";
+    let bf = "
+++++ ++++         initialize counter (cell #0) to 8
+[                 loop adds 8x6 = 48 to cell #2
+> +++ +++     
+< -          
+]        
+> .               print character 48 '0'
+< +++ +++ +++     initialize counter (cell #0) to 9
+[                 loop prints characters 48 thru 57
+> + .                                   '1' thru '9'
+< -
+]
+";
 
     let instructions = Inst::from_str(bf);
 
