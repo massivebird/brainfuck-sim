@@ -30,12 +30,12 @@ impl Inst {
 
                     instructions.push(Self {
                         idx: start_idx,
-                        kind: InstructionKind::LoopStart { end_idx: idx + 1 },
+                        kind: LoopStart { end_idx: idx + 1 },
                     });
 
                     instructions.push(Self {
                         idx,
-                        kind: InstructionKind::LoopEnd {
+                        kind: LoopEnd {
                             start_idx: start_idx + 1,
                         },
                     });
