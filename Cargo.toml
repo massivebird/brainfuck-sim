@@ -1,5 +1,5 @@
 [package]
-name = "my-brainfuck-compiler-terrible"
+name = "brainfuck-sim"
 version = "0.1.0"
 edition = "2021"
 
