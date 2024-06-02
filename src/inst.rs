@@ -11,15 +11,15 @@ impl Inst {
         let mut instructions: Vec<Self> = Vec::new();
 
         // we only care about the brainfuck
-        let str = str
+        let parsed = str
             .chars()
             .filter(|&c| "<>+-.,[]".contains(c))
             .collect::<String>();
 
         // static analysis (?)
-        // checks if all square brackets are properly closed
+        // parse square brackets, panic if they are unbalanced
         let mut stack: Vec<usize> = Vec::new();
-        for (idx, char) in str.char_indices() {
+        for (idx, char) in parsed.char_indices() {
             match char {
                 '[' => stack.push(idx),
                 ']' => {
@@ -49,7 +49,7 @@ impl Inst {
             "ERROR: loop delimiter: one or more unclosed '['"
         );
 
-        for (idx, char) in str.char_indices() {
+        for (idx, char) in parsed.char_indices() {
             let kind = match char {
                 '>' => IncPtr,
                 '<' => DecPtr,
