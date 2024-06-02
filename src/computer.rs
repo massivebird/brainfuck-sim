@@ -18,9 +18,7 @@ impl Computer {
             memory: vec![0; num_bytes],
         }
     }
-}
 
-impl Computer {
     fn read_memory(&self) -> u8 {
         *self.memory.get(self.data_ptr).unwrap()
     }
