@@ -7,23 +7,22 @@ mod computer;
 mod inst;
 
 fn main() {
+    let matches = clap::command!()
+        .arg(
+            clap::Arg::new("src")
+                .required(true)
+                .value_hint(clap::ValueHint::FilePath)
+                .value_name("FILE")
+                .value_parser(clap::value_parser!(String))
+                .help("Brainfuck source code file path"),
+        )
+        .get_matches();
+
+    let bf = std::fs::read_to_string(matches.get_one::<String>("src").unwrap()).unwrap();
+
     let mut computer = Computer::new(5);
 
-    let bf = "
-++++ ++++         initialize counter (cell #0) to 8
-[                 loop adds 8x6 = 48 to cell #2
-> +++ +++     
-< -          
-]        
-> .               print character 48 '0'
-< +++ +++ +++     initialize counter (cell #0) to 9
-[                 loop prints characters 48 thru 57
-> + .                                   '1' thru '9'
-< -
-]
-";
-
-    let instructions = Inst::from_str(bf);
+    let instructions = Inst::from_str(&bf);
 
     computer.execute(&instructions);
 
