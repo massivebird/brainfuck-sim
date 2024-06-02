@@ -1,5 +1,3 @@
-// https://github.com/pretzelhammer/rust-blog/blob/master/posts/too-many-brainfuck-compilers.md#what-is-brainfuck
-
 use crate::computer::Computer;
 use crate::inst::Inst;
 
