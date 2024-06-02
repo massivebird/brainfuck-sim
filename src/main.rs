@@ -53,44 +53,57 @@ impl Computer {
 
 #[derive(Debug)]
 struct Inst {
+    idx: usize,
     kind: InstructionKind,
 }
 
 impl Inst {
     fn from_str(str: &str) -> Vec<Self> {
+        let mut instructions: Vec<Self> = Vec::new();
+
         // static analysis (?)
         // checks if all square brackets are properly closed
-        let mut stack: Vec<InstructionKind> = Vec::new();
-        for char in str.chars() {
+        let mut stack: Vec<usize> = Vec::new();
+        for (idx, char) in str.char_indices() {
             match char {
-                '[' => stack.push(InstructionKind::LoopStart { end_idx: 0 }),
+                '[' => stack.push(idx),
                 ']' => {
-                    assert!(
-                        stack.pop().is_some(),
-                        "ERROR: loop delimiter: unmatched ']'"
-                    );
+                    // close the latest opening bracket
+                    let Some(start_idx) = stack.pop() else {
+                        panic!("ERROR: loop delimiter: unmatched ']'");
+                    };
+
+                    instructions.push(Self {
+                        idx: start_idx,
+                        kind: InstructionKind::LoopStart { end_idx: idx },
+                    });
+
+                    instructions.push(Self {
+                        idx,
+                        kind: InstructionKind::LoopEnd { start_idx },
+                    })
                 }
                 _ => continue,
             }
         }
+
         assert!(
             stack.is_empty(),
             "ERROR: loop delimiter: one or more unclosed '['"
         );
 
-        let mut instructions: Vec<Self> = Vec::new();
-        for symbol in str.chars() {
-            let kind = match symbol {
+        for (idx, char) in str.char_indices() {
+            let kind = match char {
                 '>' => IncPtr,
                 '<' => DecPtr,
                 '+' => IncByte,
                 '-' => DecByte,
-                '[' => unimplemented!(),
-                ']' => unimplemented!(),
-                _ => continue, // all other characters are interpreted as comments
+                '[' | ']' => continue, // handled above
+                _ => continue,         // all other characters are interpreted as comments
             };
-            instructions.push(Self { kind });
+            instructions.push(Self { idx, kind });
         }
+
         instructions
     }
 }
