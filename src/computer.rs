@@ -48,13 +48,13 @@ impl Computer {
                 PrintByte => {
                     print!("{}", char::from_u32(u32::from(self.read_memory())).unwrap());
                 }
-                LoopStart { end_idx } => {
+                LoopStart { loop_end_idx: end_idx } => {
                     if self.read_memory() == 0 {
                         self.inst_ptr = end_idx;
                         continue;
                     }
                 }
-                LoopEnd { start_idx } => {
+                LoopEnd { loop_start_idx: start_idx } => {
                     if self.read_memory() != 0 {
                         self.inst_ptr = start_idx;
                         continue;

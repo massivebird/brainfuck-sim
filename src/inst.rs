@@ -9,9 +9,9 @@ pub enum Kind {
     WriteByte,
     PrintByte,
     // end_idx: index of instruction after matching LoopEnd
-    LoopStart { end_idx: usize },
+    LoopStart { loop_end_idx: usize },
     // start_idx: index of instruction after matching LoopStart
-    LoopEnd { start_idx: usize },
+    LoopEnd { loop_start_idx: usize },
 }
 
 #[derive(Debug)]
@@ -31,26 +31,27 @@ impl Inst {
             .collect::<String>();
 
         // static analysis (?)
-        // parse square brackets, panic if they are unbalanced
+        // Parse square brackets, panic if they are unbalanced.
+        // We'll use a stack of opening bracket indices to do this!
         let mut stack: Vec<usize> = Vec::new();
         for (idx, char) in parsed.char_indices() {
             match char {
                 '[' => stack.push(idx),
                 ']' => {
                     // close the latest opening bracket
-                    let Some(start_idx) = stack.pop() else {
+                    let Some(opening_bracket_idx) = stack.pop() else {
                         panic!("ERROR: loop delimiter: unmatched ']'");
                     };
 
                     instructions.push(Self {
-                        idx: start_idx,
-                        kind: LoopStart { end_idx: idx + 1 },
+                        idx: opening_bracket_idx,
+                        kind: LoopStart { loop_end_idx: idx + 1 },
                     });
 
                     instructions.push(Self {
                         idx,
                         kind: LoopEnd {
-                            start_idx: start_idx + 1,
+                            loop_start_idx: opening_bracket_idx + 1,
                         },
                     });
                 }
