@@ -36,7 +36,12 @@ impl Computer {
                     *self.memory.get_mut(self.data_ptr).unwrap() =
                         self.read_memory().wrapping_sub(1);
                 }
-                WriteByte => todo!(),
+                WriteByte => {
+                    let mut input = String::new();
+                    let _num_bytes = std::io::stdin().read_line(&mut input);
+                    *self.memory.get_mut(self.data_ptr).unwrap() =
+                        *input.as_bytes().first().unwrap();
+                }
                 PrintByte => {
                     print!("{}", char::from_u32(u32::from(self.read_memory())).unwrap());
                 }

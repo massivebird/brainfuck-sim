@@ -56,6 +56,7 @@ impl Inst {
                 '+' => IncByte,
                 '-' => DecByte,
                 '.' => PrintByte,
+                ',' => WriteByte,
                 _ => continue, // brackets already handled
             };
             instructions.push(Self { idx, kind });
