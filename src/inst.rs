@@ -61,6 +61,7 @@ impl Inst {
             instructions.push(Self { idx, kind });
         }
 
+        // brackets were processed out of order, so we need to reorder all instructions
         instructions.sort_by(|a, b| a.idx.cmp(&b.idx));
         instructions
     }
