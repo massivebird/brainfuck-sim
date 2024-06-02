@@ -2,7 +2,7 @@ use std::io::Write;
 
 use crate::inst::{
     Inst,
-    InstructionKind::{DecByte, DecPtr, IncByte, IncPtr, LoopEnd, LoopStart, PrintByte, WriteByte},
+    Kind::{DecByte, DecPtr, IncByte, IncPtr, LoopEnd, LoopStart, PrintByte, WriteByte},
 };
 
 #[derive(Debug)]

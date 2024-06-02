@@ -1,9 +1,23 @@
-use InstructionKind::{DecByte, DecPtr, IncByte, IncPtr, LoopEnd, LoopStart, PrintByte, WriteByte};
+use Kind::{DecByte, DecPtr, IncByte, IncPtr, LoopEnd, LoopStart, PrintByte, WriteByte};
+
+#[derive(Debug)]
+pub enum Kind {
+    IncPtr,
+    DecPtr,
+    IncByte,
+    DecByte,
+    WriteByte,
+    PrintByte,
+    // end_idx: index of instruction after matching LoopEnd
+    LoopStart { end_idx: usize },
+    // start_idx: index of instruction after matching LoopStart
+    LoopEnd { start_idx: usize },
+}
 
 #[derive(Debug)]
 pub struct Inst {
     idx: usize,
-    pub kind: InstructionKind,
+    pub kind: Kind,
 }
 
 impl Inst {
@@ -66,18 +80,4 @@ impl Inst {
         instructions.sort_by(|a, b| a.idx.cmp(&b.idx));
         instructions
     }
-}
-
-#[derive(Debug)]
-pub enum InstructionKind {
-    IncPtr,
-    DecPtr,
-    IncByte,
-    DecByte,
-    WriteByte,
-    PrintByte,
-    // end_idx = index of instruction after matching LoopEnd
-    LoopStart { end_idx: usize },
-    // start_idx = index of instruction after matching LoopStart
-    LoopEnd { start_idx: usize },
 }
