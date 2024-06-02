@@ -1,3 +1,5 @@
+use std::io::Write;
+
 use crate::inst::{
     Inst,
     InstructionKind::{DecByte, DecPtr, IncByte, IncPtr, LoopEnd, LoopStart, PrintByte, WriteByte},
@@ -37,6 +39,7 @@ impl Computer {
                         self.read_memory().wrapping_sub(1);
                 }
                 WriteByte => {
+                    std::io::stdout().flush().unwrap(); // fixes some printing issues
                     let mut input = String::new();
                     let _num_bytes = std::io::stdin().read_line(&mut input);
                     *self.memory.get_mut(self.data_ptr).unwrap() =
